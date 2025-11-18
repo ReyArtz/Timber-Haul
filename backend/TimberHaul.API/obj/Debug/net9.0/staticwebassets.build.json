@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "xwCkwU65u28oTsoBZwoNrSTZ87WC1LovAM3c9G22b4E=",
+  "Source": "TimberHaul.API",
+  "BasePath": "_content/TimberHaul.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
