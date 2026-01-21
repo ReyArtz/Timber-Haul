@@ -3,7 +3,7 @@ services:
     name: timber-haul-api
     env: dotnet
     region: frankfurt
-    rootDirectory: backend/TimberHaul.API
+    root: backend/TimberHaul.API
     buildCommand: dotnet publish -c Release -o out
     startCommand: dotnet out/TimberHaul.API.dll
     envVars:
