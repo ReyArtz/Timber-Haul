@@ -40,10 +40,10 @@ public enum EquipmentType
 
 public enum WoodType
 {
-    Oak,
-    Beech,
-    Pine,
-    Spruce,
-    Birch,
-    Other
+    Stejar,
+    Fag,
+    Brad,
+    Garnita,
+    Carpen,
+    Salcam
 }

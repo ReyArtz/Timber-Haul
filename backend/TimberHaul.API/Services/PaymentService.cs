@@ -13,6 +13,7 @@ public interface IPaymentService
     Task<ApiResponse<List<PaymentListDto>>> GetForesterPaymentsAsync(Guid foresterId);
     Task<ApiResponse<PaymentResponseDto>> GetPaymentByIdAsync(Guid paymentId, Guid userId);
     Task<ApiResponse<PaymentSummaryDto>> GetPaymentSummaryAsync(Guid userId, string role);
+    Task<ApiResponse<PaymentResponseDto>> MarkPaymentAsPaidAsync(Guid paymentId, Guid customerId);
 }
 
 public class PaymentService : IPaymentService
@@ -331,6 +332,83 @@ public class PaymentService : IPaymentService
             Success = true,
             Message = "Payment summary retrieved successfully",
             Data = summary
+        };
+    }
+
+    public async Task<ApiResponse<PaymentResponseDto>> MarkPaymentAsPaidAsync(Guid paymentId, Guid customerId)
+    {
+        var payment = await _context.Payments
+            .Include(p => p.Load)
+            .Include(p => p.Customer)
+                .ThenInclude(c => c!.User)
+            .Include(p => p.Forester)
+                .ThenInclude(f => f!.User)
+            .FirstOrDefaultAsync(p => p.PaymentId == paymentId);
+
+        if (payment == null)
+        {
+            return new ApiResponse<PaymentResponseDto>
+            {
+                Success = false,
+                Message = "Payment not found"
+            };
+        }
+
+        if (payment.CustomerId != customerId)
+        {
+            return new ApiResponse<PaymentResponseDto>
+            {
+                Success = false,
+                Message = "This is not your payment"
+            };
+        }
+
+        if (payment.Status == PaymentStatus.Paid)
+        {
+            return new ApiResponse<PaymentResponseDto>
+            {
+                Success = false,
+                Message = "Payment already marked as paid"
+            };
+        }
+
+        payment.Status = PaymentStatus.Paid;
+        payment.PaymentMethodType = PaymentMethod.Cash;
+        payment.PaymentDate = DateTime.UtcNow;
+        payment.UpdatedAt = DateTime.UtcNow;
+
+        if (payment.Load != null)
+        {
+            payment.Load.PaymentStatus = PaymentStatus.Paid;
+            payment.Load.UpdatedAt = DateTime.UtcNow;
+        }
+
+        await _context.SaveChangesAsync();
+
+        var paymentDto = new PaymentResponseDto
+        {
+            PaymentId = payment.PaymentId,
+            LoadId = payment.LoadId,
+            LoadNumber = payment.Load?.LoadNumber,
+            CustomerId = payment.CustomerId,
+            CustomerName = payment.Customer != null ? payment.Customer.User.FirstName + " " + payment.Customer.User.LastName : "",
+            ForesterId = payment.ForesterId,
+            ForesterName = payment.Forester != null ? payment.Forester.User.FirstName + " " + payment.Forester.User.LastName : "",
+            Amount = payment.Amount,
+            PaymentMethodType = payment.PaymentMethodType,
+            PaymentDate = payment.PaymentDate,
+            DueDate = payment.DueDate,
+            Status = payment.Status,
+            InvoiceNumber = payment.InvoiceNumber,
+            Notes = payment.Notes,
+            CreatedAt = payment.CreatedAt
+        };
+
+        return new ApiResponse<PaymentResponseDto>
+        {
+            Success = true,
+            Message = "Payment marked as paid successfully",
+            Data = paymentDto
         };
     }
 }

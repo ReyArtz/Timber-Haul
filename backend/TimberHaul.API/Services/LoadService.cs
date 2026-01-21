@@ -80,7 +80,7 @@ public class LoadService : ILoadService
             DriverId = dto.DriverId,
             PlotId = dto.PlotId,
             ProductId = order.ProductId,
-            WoodType = order.Product?.WoodType ?? WoodType.Other,
+            WoodType = order.Product?.WoodType ?? WoodType.Salcam,
             Volume = order.Volume,
             PricePerCubicMeter = order.PricePerUnit,
             TotalAmount = order.TotalAmount,
@@ -299,14 +299,34 @@ public class LoadService : ILoadService
         }
 
         if (dto.Status == LoadStatus.Delivered && load.DeliveredAt == null)
+{
+    load.DeliveredAt = DateTime.UtcNow;
+    if (load.Order != null)
+    {
+        load.Order.OrderStatus = "completed";
+        load.Order.UpdatedAt = DateTime.UtcNow;
+    }
+
+    // Auto-create payment/invoice when delivered
+    var existingPayment = await _context.Payments
+        .FirstOrDefaultAsync(p => p.LoadId == loadId);
+
+    if (existingPayment == null)
+    {
+        var invoiceNumber = $"INV-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+        var payment = new Payment
         {
-            load.DeliveredAt = DateTime.UtcNow;
-            if (load.Order != null)
-            {
-                load.Order.OrderStatus = "completed";
-                load.Order.UpdatedAt = DateTime.UtcNow;
-            }
-        }
+            LoadId = loadId,
+            CustomerId = load.CustomerId,
+            ForesterId = load.ForesterId,
+            Amount = load.TotalAmount,
+            DueDate = DateTime.UtcNow.AddDays(30),
+            Status = PaymentStatus.Unpaid,
+            InvoiceNumber = invoiceNumber
+        };
+        _context.Payments.Add(payment);
+    }
+}
 
         load.UpdatedAt = DateTime.UtcNow;
 

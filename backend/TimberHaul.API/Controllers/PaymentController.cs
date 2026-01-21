@@ -77,6 +77,21 @@ public class PaymentsController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Customer")]
+    [HttpPost("{id}/mark-paid")]
+    public async Task<IActionResult> MarkPaymentAsPaid(Guid id)
+    {
+        var customerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "");
+        var result = await _paymentService.MarkPaymentAsPaidAsync(id, customerId);
+
+        if (!result.Success)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
     [Authorize(Roles = "Forester")]
     [HttpGet("forester-payments")]
     public async Task<IActionResult> GetForesterPayments()
