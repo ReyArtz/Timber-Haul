@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TimberHaul.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b48a84498cf231e8434afa9f652fcefa38dcbbcd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+500e5e362274da21e589b1d87a6ff5d88f250727")]
 [assembly: System.Reflection.AssemblyProductAttribute("TimberHaul.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TimberHaul.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
