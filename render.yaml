@@ -3,9 +3,8 @@ services:
     name: timber-haul-api
     env: dotnet
     region: frankfurt
-    root: backend/TimberHaul.API
-    buildCommand: dotnet publish -c Release -o out
-    startCommand: dotnet out/TimberHaul.API.dll
+    buildCommand: cd backend/TimberHaul.API && dotnet publish -c Release -o out
+    startCommand: cd backend/TimberHaul.API && dotnet out/TimberHaul.API.dll
     envVars:
       - key: ASPNETCORE_URLS
         value: http://0.0.0.0:$PORT
